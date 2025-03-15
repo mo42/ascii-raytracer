@@ -154,9 +154,15 @@ vec3 cast_ray(const vec3& orig, const vec3& dir, const int depth = 0) {
          refract_color * material.albedo[3];
 }
 
-void render() {
-  constexpr int width = 80;
-  constexpr int height = 40;
+void print_colored_square(float r, float g, float b) {
+  int color_index =
+      16 + (36 * (int)(r * 5)) + (6 * (int)(g * 5)) + (int)(b * 5);
+  attron(COLOR_PAIR(color_index));
+  printw("⬛");
+  attroff(COLOR_PAIR(color_index));
+}
+
+void render(int width, int height) {
   constexpr float fov = 1.05; // 60 degrees field of view in radians
   std::vector<vec3> framebuffer(width * height);
 
@@ -176,7 +182,7 @@ void render() {
     for (int x = 0; x < width; x++) {
       int pix = y * width + x;
       vec3 c = framebuffer[pix];
-      // print_colored_square(c.x, c.y, c.z);
+      print_colored_square(c.x, c.y, c.z);
     }
     printw("\n");
   }
@@ -185,6 +191,10 @@ void render() {
 }
 
 int main() {
+
+  constexpr int width = 80;
+  constexpr int height = 40;
+
   setlocale(LC_CTYPE, "");
   initscr();
   noecho();
@@ -196,7 +206,7 @@ int main() {
   const std::chrono::milliseconds frameDuration(1000 / 30);
   while (true) {
     auto start = std::chrono::steady_clock::now();
-    render();
+    render(width, height);
     auto end = std::chrono::steady_clock::now();
     auto renderDuration =
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
