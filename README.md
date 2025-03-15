@@ -1,6 +1,8 @@
-# A Real-time Raytracer in your Terminal
+# A Real-time ASCII Raytracer in your Terminal
 
-I was curious if I one can do real-time raytracing in the terminal.
+I was curious if I one can do real-time ASCII raytracing in the terminal.
+
+![Real-time ASCII Raytracer in the terminal](.example.webm)
 
 ## Compilation
 ```sh

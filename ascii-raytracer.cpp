@@ -224,8 +224,8 @@ vec3 rotate(vec3 point, vec3 pivot, float angleX, float angleY, float angleZ) {
 }
 
 void animate() {
-  spheres[3].center = rotate(spheres[3].center, {1.5, -2.5, -20.0}, 0, -0.4, 0.0);
-  spheres[2].center = rotate(spheres[2].center, {1.5, -2.5, -15.0}, 0, 0.8, 0.0);
+  spheres[3].center = rotate(spheres[3].center, {1.5, -2.5, -20.0}, 0, -0.8, 0.0);
+  spheres[2].center = rotate(spheres[2].center, {1.5, -2.5, -15.0}, 0, 1.6, 0.0);
 }
 
 int main() {
