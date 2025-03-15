@@ -2,7 +2,7 @@
 
 I was curious if I one can do real-time ASCII raytracing in the terminal.
 
-![Real-time ASCII Raytracer in the terminal](.example.webm)
+![Real-time ASCII Raytracer in the terminal](.example.mp4)
 
 ## Compilation
 ```sh
