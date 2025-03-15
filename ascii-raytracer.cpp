@@ -1,6 +1,10 @@
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <fstream>
+#include <iostream>
+#include <ncurses.h>
+#include <thread>
 #include <tuple>
 #include <vector>
 
@@ -150,27 +154,56 @@ vec3 cast_ray(const vec3& orig, const vec3& dir, const int depth = 0) {
          refract_color * material.albedo[3];
 }
 
-int main() {
-  constexpr int width = 1024;
-  constexpr int height = 768;
+void render() {
+  constexpr int width = 80;
+  constexpr int height = 40;
   constexpr float fov = 1.05; // 60 degrees field of view in radians
   std::vector<vec3> framebuffer(width * height);
-#pragma omp parallel for
-  for (int pix = 0; pix < width * height; pix++) { // actual rendering loop
-    float dir_x = (pix % width + 0.5) - width / 2.;
-    float dir_y = -(pix / width + 0.5) +
-                  height / 2.; // this flips the image at the same time
-    float dir_z = -height / (2. * tan(fov / 2.));
-    framebuffer[pix] =
-        cast_ray(vec3{0, 0, 0}, vec3{dir_x, dir_y, dir_z}.normalized());
+
+#pragma omp parallel for collapse(2)
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int pix = y * width + x;
+      float dir_x = (x + 0.5) - width / 2.0;
+      float dir_y = -(y + 0.5) + height / 2.0;
+      float dir_z = -height / (2.0 * tan(fov / 2.0));
+      framebuffer[pix] =
+          cast_ray(vec3{0, 0, 0}, vec3{dir_x, dir_y, dir_z}.normalized());
+    }
   }
 
-  std::ofstream ofs("./out.ppm", std::ios::binary);
-  ofs << "P6\n" << width << " " << height << "\n255\n";
-  for (vec3& color : framebuffer) {
-    float max = std::max(1.f, std::max(color[0], std::max(color[1], color[2])));
-    for (int chan : {0, 1, 2})
-      ofs << (char)(255 * color[chan] / max);
+  for (int y = 0; y < height; y++) {
+    for (int x = 0; x < width; x++) {
+      int pix = y * width + x;
+      vec3 c = framebuffer[pix];
+      // print_colored_square(c.x, c.y, c.z);
+    }
+    printw("\n");
   }
+  refresh();
+  move(0, 0);
+}
+
+int main() {
+  setlocale(LC_CTYPE, "");
+  initscr();
+  noecho();
+  start_color();
+  for (int i = 16; i < 232; i++) {
+    init_pair(i, i, COLOR_BLACK);
+  }
+
+  const std::chrono::milliseconds frameDuration(1000 / 30);
+  while (true) {
+    auto start = std::chrono::steady_clock::now();
+    render();
+    auto end = std::chrono::steady_clock::now();
+    auto renderDuration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    if (renderDuration < frameDuration) {
+      std::this_thread::sleep_for(frameDuration - renderDuration);
+    }
+  }
+  endwin();
   return 0;
 }

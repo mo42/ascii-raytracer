@@ -18,3 +18,15 @@ endif()
 file(GLOB SOURCES *.h *.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+find_library(NCURSESW_LIB NAMES ncursesw)
+find_path(NCURSESW_INCLUDE_DIR NAMES ncurses.h PATH_SUFFIXES ncurses)
+
+if(NCURSESW_LIB AND NCURSESW_INCLUDE_DIR)
+  include_directories(${NCURSESW_INCLUDE_DIR})
+  message(STATUS "Found ncursesw: ${NCURSESW_LIB}")
+else()
+  message(FATAL_ERROR "ncursesw not found!")
+endif()
+
+# Link ncurses
+target_link_libraries(${PROJECT_NAME} ${NCURSESW_LIB})
