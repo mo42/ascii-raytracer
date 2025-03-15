@@ -48,7 +48,7 @@ constexpr Material red_rubber = {
 constexpr Material mirror = {
     1.0, {0.0, 16.0, 0.8, 0.0}, {1.0, 1.0, 1.0}, 1425.};
 
-constexpr Sphere spheres[] = {{{-3, 0, -16}, 2, ivory},
+Sphere spheres[] = {{{-3, 0, -16}, 2, ivory},
                               {{-1.0, -1.5, -12}, 2, glass},
                               {{1.5, -0.5, -18}, 3, red_rubber},
                               {{7, 5, -18}, 4, mirror}};
@@ -190,6 +190,44 @@ void render(int width, int height) {
   move(0, 0);
 }
 
+vec3 rotate(vec3 point, vec3 pivot, float angleX, float angleY, float angleZ) {
+    // Convert angles from degrees to radians
+    float radX = angleX * M_PI / 180.0;
+    float radY = angleY * M_PI / 180.0;
+    float radZ = angleZ * M_PI / 180.0;
+
+    // Translate point to origin
+    float px = point.x - pivot.x;
+    float py = point.y - pivot.y;
+    float pz = point.z - pivot.z;
+
+    // Rotation around X-axis
+    float y1 = py * cos(radX) - pz * sin(radX);
+    float z1 = py * sin(radX) + pz * cos(radX);
+    py = y1;
+    pz = z1;
+
+    // Rotation around Y-axis
+    float x2 = px * cos(radY) + pz * sin(radY);
+    float z2 = -px * sin(radY) + pz * cos(radY);
+    px = x2;
+    pz = z2;
+
+    // Rotation around Z-axis
+    float x3 = px * cos(radZ) - py * sin(radZ);
+    float y3 = px * sin(radZ) + py * cos(radZ);
+    px = x3;
+    py = y3;
+
+    // Translate back
+    return {px + pivot.x, py + pivot.y, pz + pivot.z};
+}
+
+void animate() {
+  spheres[3].center = rotate(spheres[3].center, {1.5, -2.5, -20.0}, 0, -0.4, 0.0);
+  spheres[2].center = rotate(spheres[2].center, {1.5, -2.5, -15.0}, 0, 0.8, 0.0);
+}
+
 int main() {
 
   constexpr int width = 80;
@@ -206,6 +244,7 @@ int main() {
   const std::chrono::milliseconds frameDuration(1000 / 30);
   while (true) {
     auto start = std::chrono::steady_clock::now();
+    animate();
     render(width, height);
     auto end = std::chrono::steady_clock::now();
     auto renderDuration =
